@@ -14,5 +14,5 @@ bat = vp.cylinder(pos=vp.vector(100,0,0), radius=0.5, axis=vp.vector(0,-53.5,0))
 racket = vp.compound([racket_head,bat])
 
 #spin
-test = 0
+
 
