@@ -31,7 +31,7 @@ while t<T:
     rate(100)
 
     #spin
-    shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=w*dt) 
+    shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=mag(w)*dt) 
 
     #trajectory
 
