@@ -1,12 +1,10 @@
-import math
-import numpy as np
-import matplotlib.pyplot as plt
+from vpython import *
 
 # Constants
-g = 9.81 # gravitational acceleration
+g = vector(0, -9.81, 0) # gravitational acceleration
 rho = 1.23 # air density
 Cd = 0.5 # drag coefficient
-A = math.pi * (0.022 / 2) ** 2 # cross-sectional area of the shuttlecock
+A = pi * (0.022 / 2) ** 2 # cross-sectional area of the shuttlecock
 m = 0.005 # mass of the shuttlecock
 S = 6.70e-5 # coefficient of lift force
 r = 0.022 # radius of shuttlecock
@@ -14,13 +12,18 @@ w = 30 # angular velocity of shuttlecock (rad/s)
 
 # Initial conditions
 v0 = 20 # initial velocity
-theta0 = math.pi/4 # initial angle with the horizontal
-vx0 = v0 * math.cos(theta0)
-vy0 = v0 * math.sin(theta0)
-x0 = y0 = 0
+theta0 = pi/4 # initial angle with the horizontal
+vx0 = v0 * cos(theta0)
+vy0 = v0 * sin(theta0)
+x0 = y0 = z0 = 0
+
+# Create scene and objects
+scene = canvas(title='Badminton Simulation', width=800, height=600, center=vector(0, 1, 0), background=color.white)
+floor = box(pos=vector(0, -0.05, 0), size=vector(50, 0.1, 10), color=color.green)
+shuttlecock = sphere(pos=vector(x0, y0, z0), radius=r, color=color.yellow)
 
 # Simulation parameters
-dt = 0.1 # time step
+dt = 0.001 # time step
 t_max = 5 # maximum simulation time
 
 # Define functions
@@ -30,38 +33,25 @@ def lift_force(v, w):
 def drag_force(v):
     return 0.5 * rho * Cd * A * (v ** 2)
 
-# Initialize arrays
-t = np.arange(0, t_max, dt)
-x = np.zeros_like(t)
-y = np.zeros_like(t)
-vx = np.zeros_like(t)
-vy = np.zeros_like(t)
-
 # Perform simulation
-for i in range(len(t)):
+t = 0
+shuttlecock.velocity = vector(vx0, vy0, 0)
+while t < t_max:
+    rate(1000)
+    
     # Calculate forces
-    v = math.sqrt(vx[i] ** 2 + vy[i] ** 2)
+    v = mag(shuttlecock.velocity)
     Fg = m * g
     Fl = lift_force(v, w)
     Fd = drag_force(v)
-    Fx = -Fd * vx[i] / v
-    Fy = -Fd * vy[i] / v + Fg + Fl
+    F = -Fd * norm(shuttlecock.velocity) + Fg + Fl
     
-    # Update velocities and positions
-    vx[i+1] = vx[i] + Fx / m * dt
-    vy[i+1] = vy[i] + Fy / m * dt
-    x[i+1] = x[i] + vx[i+1] * dt
-    y[i+1] = y[i] + vy[i+1] * dt
+    # Update velocity and position
+    shuttlecock.velocity += F / m * dt
+    shuttlecock.pos += shuttlecock.velocity * dt
     
     # Apply spin
-    spin_angle = w * t[i+1]
-    vx[i+1], vy[i+1] = (
-        math.cos(spin_angle) * vx[i+1] - math.sin(spin_angle) * vy[i+1],
-        math.sin(spin_angle) * vx[i+1] + math.cos(spin_angle) * vy[i+1]
-    )
-
-# Plot results
-plt.plot(x, y)
-plt.xlabel('x (m)')
-plt.ylabel('y (m)')
-plt.show()
+    spin_angle = w * t
+    shuttlecock.rotate(angle=spin_angle, axis=vector(0, 0, 1))
+    
+    t += dt
