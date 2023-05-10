@@ -8,10 +8,10 @@ v0 = 100
 g = vector(0,-9.8,0)
 
 #shuttlecock
-head = sphere(pos=vector(0,2.5,0), radius=1.4, make_trail=True)
-feather = cone(pos=vector(0,0,0), radius=3.4, axis=vector(-7,0,0))
+head = sphere(pos=vector(7,0,0), radius=1.4, make_trail=True)
+feather = cone(pos=vector(0,0,0), radius=3.4, axis=vector(7,0,0))
 
-shuttlecock = compound([head,feather])
+shuttlecock = compound([head,feather],texture = textures.earth)
 shuttlecock.axis = vector(cos(theta), sin(theta),0)
 
 #racket

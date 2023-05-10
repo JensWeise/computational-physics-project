@@ -19,8 +19,15 @@ x0 = y0 = z0 = 0
 
 # Create scene and objects
 scene = canvas(title='Badminton Simulation', width=800, height=600, center=vector(0, 1, 0), background=color.white)
-floor = box(pos=vector(0, -0.05, 0), size=vector(50, 0.1, 10), color=color.green)
-shuttlecock = sphere(pos=vector(x0, y0, z0), radius=r, color=color.yellow)
+
+racket_head = ellipsoid(pos=vector(100,0,0), lenght=1, width=23, height=29)
+bat = cylinder(pos=vector(100,0,0), radius=0.5, axis=vector(0,-53.5,0))
+racket = compound([racket_head,bat])
+head = sphere(pos=vector(0,0,0), radius=1.4, make_trail=True)
+feather = cone(pos=vector(-7,0,0), radius=3.4, axis=vector(7,0,0))
+
+shuttlecock = compound([head,feather], pos=vector(0,0,0), 
+                       axis=vector(cos(theta), sin(theta),0))
 
 # Simulation parameters
 dt = 0.001 # time step
