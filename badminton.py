@@ -12,7 +12,7 @@ head = sphere(pos=vector(0,0,0), radius=1.4, make_trail=True)
 feather = cone(pos=vector(-7,0,0), radius=3.4, axis=vector(7,0,0))
 
 shuttlecock = compound([head,feather], pos=vector(0,0,0), 
-                       axis=vector(cos(theta), sin(theta),0))
+                       axis=vector(cos(theta), sin(theta),0), texture=textures.earth)
 
 #racket
 racket_head = ellipsoid(pos=vector(100,0,0), lenght=1, width=23, height=29)
