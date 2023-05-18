@@ -1,11 +1,13 @@
+#%%
 from vpython import *
 
-canvas(title="badminton's movement",width=600, height=600)
+canvas(title="badminton's movement",width=600, height=600, autoscale=True)
 
 #initial parameter
 theta = pi/4 #發射仰角
-v0 = 100
+v0 = 30
 g = vector(0,-9.8,0)
+m = 5.50e-3
 
 #shuttlecock
 head = sphere(pos=vector(0,0,0), radius=1.4)
@@ -15,25 +17,41 @@ shuttlecock = compound([head,feather], pos=vector(0,0,0),
                        axis=vector(cos(theta), sin(theta),0), texture=textures.earth, make_trail=True)
 
 #racket
-racket_head = ellipsoid(pos=vector(100,0,0), lenght=1, width=23, height=29)
+racket_head = ellipsoid(pos=vector(100,0,0), length=1, width=23, height=29)
 bat = cylinder(pos=vector(100,0,0), radius=0.5, axis=vector(0,-53.5,0))
-racket = compound([racket_head,bat])
+racket = compound([racket_head,bat], axis=vector(0,-53.5,0), pos=vec(100,0,0), origin=vec(100,-53.5,0))
 
 #parameter
 vel = vector(v0*cos(theta), v0*sin(theta), 0)
 w = 10*pi*norm(shuttlecock.axis) #angular velocity
+ww = 50*norm(shuttlecock.axis)
 t = 0
 dt = 0.01
 T = 100
+eta = 1.81e-5
+b = -6*pi*eta*4.33
+
+ws = 10*vector(0,0,1)
 
 
-while t<T:
-    rate(100)
+#%%
+while t<T :
+    rate(30)
 
     #spin
     shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=mag(w)*dt) 
+    shuttlecock.rotate(axis=norm(vel), origin=norm(shuttlecock.axis), angle=-mag(ww)*dt)
+    #swin
+    racket.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
     
     #trajectory
-    shuttlecock.pos = vel*t+0.5*g*t**2
+    f = -b*mag(vel)*norm(vel)
+    a = f/m+g
+    vel = vel + a*dt
+    shuttlecock.pos = shuttlecock.pos + vel*dt
+    
+    
+    
     t += dt
 
+# %%

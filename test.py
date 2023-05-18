@@ -1,41 +1,48 @@
+#%%
 from vpython import *
-import numpy as np
 
-# 定义一些常量
-g = vector(0, -9.8, 0)  # 重力加速度，单位：m/s^2
-rho = 1.225  # 空气密度，单位：kg/m^3
-Cd = 0.5  # 阻力系数
-A = 0.01  # 弹丸截面积，单位：m^2
-m = 0.01  # 弹丸质量，单位：kg
-v0 = 100.0  # 初速度，单位：m/s
-theta = np.pi / 4  # 发射角度，单位：弧度
-omega = 20.0  # 膛线旋转角速度，单位：rad/s
-r = 0.01  # 膛线半径，单位：m
+canvas(title="badminton's movement",width=600, height=600, autoscale = False)
 
-# 定义初始位置和速度
-pos = vector(0, 0, 0)
-vel = vector(v0 * np.cos(theta), v0 * np.sin(theta), 0)
+#initial parameter
+theta = pi/4 #發射仰角
+v0 = 50
+g = vector(0,-9.8,0)
+m = 5.50e-3
 
-# 创建场景和物体
-scene = canvas(title='Bullet Trajectory', width=800, height=600)
-floor = box(pos=vector(0, -0.1, 0), size=vector(2, 0.2, 2))
-bullet = sphere(pos=pos, radius=1, color=color.red)
+#shuttlecock
+head = sphere(pos=vector(0,0,0), radius=1.4)
+feather = cone(pos=vector(-7,0,0), radius=3.4, axis=vector(7,0,0))
 
-# 模拟运动
+shuttlecock = compound([head,feather], pos=vector(0,0,0), 
+                       axis=vector(cos(theta), sin(theta),0), texture=textures.earth, make_trail=True)
+
+#racket
+racket_head = ellipsoid(pos=vector(100,0,0), length=1, width=23, height=29)
+bat = cylinder(pos=vector(100,0,0), radius=0.5, axis=vector(0,-53.5,0))
+racket = compound([racket_head,bat])
+
+#parameter
+vel = vector(v0*cos(theta), v0*sin(theta), 0)
+w = 10*pi*norm(shuttlecock.axis) #angular velocity
 t = 0
 dt = 0.01
-while pos.y >= 0:
-    rate(10)
-    # 计算阻力和膛线力
-    v = mag(vel)
-    Fd = -0.5 * rho * Cd * A * v * vel
-    Fl = m * omega ** 2 * r * cross(vel, vector(0, 0, 1))
-    # 计算加速度和速度
-    a = (Fd + Fl + m * g) / m
-    vel += a * dt
-    # 计算位置
-    pos += vel * dt
-    # 更新物体位置
-    bullet.pos = pos
-    # 更新时间
+T = 100
+eta = 1.81e-5
+b = -6*pi*eta*4.33
+
+#%%
+while t<T :
+    rate(30)
+
+    #spin
+    shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=mag(w)*dt) 
+    
+    #trajectory
+    
+        
+    f = -b*mag(vel)*norm(vel)
+    a = f/m+g
+    vel = vel + a*dt
+    shuttlecock.pos = shuttlecock.pos + vel*dt
+    shuttlecock.axis = norm(vel)
     t += dt
