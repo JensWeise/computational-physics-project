@@ -35,6 +35,5 @@ while t<T:
     
     #trajectory
     shuttlecock.pos = vel*t+0.5*g*t**2
-
     t += dt
 
