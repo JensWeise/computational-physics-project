@@ -40,7 +40,7 @@ while t<T :
 
     #spin
     shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=mag(w)*dt) 
-    shuttlecock.rotate(axis=norm(vel), origin=norm(shuttlecock.axis), angle=-mag(ww)*dt)
+    shuttlecock.rotate(axis=norm(vel), origin=norm(shuttlecock.axis), angle=mag(ww)*dt)
     #swin
     racket.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
     
