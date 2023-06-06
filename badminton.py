@@ -19,10 +19,7 @@ shuttlecock = compound([head,feather],
 #racket
 racket_head = cylinder(pos=vector(100,0,0), size=vector(1,29,23))
 bat = cylinder(pos=vector(100.5,0,0), radius=0.5, axis=vector(0,-53.5,0))
-racket = compound([racket_head,bat], axis=vector(1,-1,0), pos=vec(100,0,0), origin=vec(100,-53.5,0))
-
-#球拍柱子向量
-racket_vec = cylinder(pos = racket.pos , axis=vector(1,1,0), size = 50*racket.axis, radius = 0.1)
+racket = compound([racket_head,bat], axis=vector(1,0,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0))
 
 #parameterze
 vel = vector(v0*cos(theta), v0*sin(theta), 0)
@@ -40,6 +37,9 @@ ws = 7*vector(0,0,1)
 
 def momentum(m1,v1,m2,v2):
     return None
+
+#TODO: 
+# - def force and torque
 
 
 #%%
@@ -65,41 +65,24 @@ while t<T :
     nvector = hat(-racket.axis)
     plane = lambda x, y, z: (nvector.x*x+nvector.y*y+nvector.z*z-(dot(nvector,racket.pos)))/(nvector.x**2+nvector.y**2+nvector.z**2)**0.5
     distance = plane(x=shuttlecock.origin.x,y=shuttlecock.origin.y,z=shuttlecock.origin.z)
-    print(distance)
-    print(racket_vec.axis)
+
+    racket.racket_ha = hat(cross(vector(0,0,1),racket.axis))
+
+    # print(distance)
+    print(racket.racket_ha)
     if distance>head.radius and distance<20:
         #hit
         racket.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
-        racket_vec.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
     elif distance<head.radius+1:
         break
-
-        
-
-
-    #condition
-    
-
-    
-    #vector
-    s = hat(shuttlecock.pos-racket.origin)
-    r = hat(racket.axis)
-    cosa = dot(-s,r)
-    sina = (1-cosa**2)**0.5
-
-
-
-    
-
-    
-    
     
     t += dt
-s_rang = dot(shuttlecock.axis,racket_vec.axis) 
+
+
+s_rang = dot(shuttlecock.axis,racket.racket_ha) 
 #用球拍和球的內積判斷夾角
 if s_rang>0:
     print("yes",s_rang)
-
 elif s_rang<0:
     print("no", s_rang)
 
