@@ -7,24 +7,21 @@ canvas(title="badminton's movement",width=600, height=600, autoscale=True)
 theta = pi/4 #發射仰角
 v0 = 70 #初速
 g = vector(0,-9.8,0)
-m = 5.50e-3 #羽球重量
+
 
 #shuttlecock
 head = sphere(pos=vector(0,0,0), radius=1.4)
 feather = cone(pos=vector(-7,0,0), radius=3.4, axis=vector(7,0,0))
 
 shuttlecock = compound([head,feather], 
-                       axis=vector(cos(theta), sin(theta),0), texture=textures.earth, make_trail=True, origin=vector(0,0,0))
+                       axis=vector(cos(theta), sin(theta),0), texture=textures.earth, make_trail=True, origin=vector(0,0,0), m = 5.50e-3)
 
 #racket
 racket_head = cylinder(pos=vector(100,0,0), size=vector(1,29,23))
 bat = cylinder(pos=vector(100.5,0,0), radius=0.5, axis=vector(0,-53.5,0))
-racket = compound([racket_head,bat], axis=vector(1,-1,0), pos=vec(100,0,0), origin=vec(100,-53.5,0))
+racket = compound([racket_head,bat], axis=vector(1,-1,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0), mr = 8.5e-2)
 
-#球拍柱子向量
-racket_vec = cylinder(pos = racket.pos , axis=vector(1,1,0), size = 50*racket.axis, radius = 0.1)
-
-#parameterze
+#parameter
 vel = vector(v0*cos(theta), v0*sin(theta), 0)
 w = 10*pi*norm(shuttlecock.axis) #自旋
 ww = 50*norm(shuttlecock.axis) #螺線
@@ -36,15 +33,27 @@ b = 6*pi*eta*4.33
 r = 1
 
 #racket's parameter
-ws = 7*vector(0,0,1)
+ws = 0.1*vector(0,0,1)
 
-def momentum(m1,v1,m2,v2):
-    return None
+def momentum(v,ws):
+    #拍子的動量變化
+    delta_ms = -cross(hit_length,ws)*racket.mr
+    vf = (shuttlecock.m*v+delta_ms)/shuttlecock.m
+    return vf, delta_ms
 
+def torque(v,ws):
+    delta_ms = momentum(v,ws)[1]
+    tou = cross(rr,delta_ms/tt)
+    alpha = tou/((2/5)*shuttlecock.m*1.4**2)
+    return alpha*0.000001
+
+
+
+Rate = 50
 
 #%%
 while t<T :
-    rate(50)
+    rate(Rate)
 
     #spin
     shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=mag(w)*dt) #👍
@@ -54,7 +63,7 @@ while t<T :
     
     #trajectory
     f = -b*vel
-    a = f/m+g
+    a = f/shuttlecock.m+g
     vel = vel + a*dt
     shuttlecock.pos.x, shuttlecock.pos.y, shuttlecock.pos.z = shuttlecock.pos.x+vel.x*dt, shuttlecock.pos.y+vel.y*dt ,shuttlecock.pos.z+vel.z*dt
     shuttlecock.axis = vel.hat
@@ -65,43 +74,78 @@ while t<T :
     nvector = hat(-racket.axis)
     plane = lambda x, y, z: (nvector.x*x+nvector.y*y+nvector.z*z-(dot(nvector,racket.pos)))/(nvector.x**2+nvector.y**2+nvector.z**2)**0.5
     distance = plane(x=shuttlecock.origin.x,y=shuttlecock.origin.y,z=shuttlecock.origin.z)
-    print(distance)
-    print(racket_vec.axis)
+
+    racket.racket_ha = hat(cross(vector(0,0,1),racket.axis))
+
+
     if distance>head.radius and distance<20:
         #hit
         racket.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
-        racket_vec.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
     elif distance<head.radius+1:
         break
-
-        
-
-
-    #condition
-    
-
-    
-    #vector
-    s = hat(shuttlecock.pos-racket.origin)
-    r = hat(racket.axis)
-    cosa = dot(-s,r)
-    sina = (1-cosa**2)**0.5
-
-
-
-    
-
-    
-    
     
     t += dt
-s_rang = dot(shuttlecock.axis,racket_vec.axis) 
+
+
+t_interval = 0
+#接觸時間
+tt = 0.001
+
+while t_interval<tt:
+    rate(Rate*10)
+
+    racket.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
+    shuttlecock.rotate(origin=racket.origin, axis=vector(0,0,1), angle=mag(ws*dt))
+
+    t += dt
+    t_interval += dt
+
+
+#the length of where the shuttlecock hit to the origin of racket
+length = mag(shuttlecock.origin-racket.origin)
+hit_length = (length**2-1.4**2)**0.5*racket.racket_ha
+rr = -(shuttlecock.origin-racket.origin)-hit_length
+
+
+s_rang = dot(shuttlecock.axis,racket.racket_ha) 
+vf = momentum(vel,ws)[0]
+alpha = torque(vel,ws)
+omega = vector(0,0,0)
+print(alpha)
 #用球拍和球的內積判斷夾角
 if s_rang>0:
-    print("yes",s_rang)
-
+    while t<T:
+        rate(Rate)
+        shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=-0.5*mag(w)*dt)
+        f = -b*vf
+        a = f/shuttlecock.m+g
+        vf = vf+a*dt
+        shuttlecock.pos = shuttlecock.pos+vf*dt
+        if abs(mag(shuttlecock.axis.hat-vf.hat)) > 0.1:
+            omega += alpha*dt
+            shuttlecock.rotate(axis=vector(0,0,1), angle=mag(omega)*dt)
+            print(vf)
+        else:
+            shuttlecock.axis = vf
+            continue        
+        t += dt
 elif s_rang<0:
-    print("no", s_rang)
+    while t<T:
+        rate(Rate)
+        shuttlecock.rotate(axis=norm(shuttlecock.axis), angle=-0.5*mag(w)*dt)
+        f = -b*vf
+        a = f/shuttlecock.m+g
+        vf = vf+a*dt
+        shuttlecock.pos = shuttlecock.pos+vf*dt
+        if abs(mag(shuttlecock.axis.hat-vf.hat)) > 0.1:
+            omega += alpha*dt
+            shuttlecock.rotate(axis=vector(0,0,1), angle=-mag(omega)*dt)
+            print(vf)
+        else:
+            shuttlecock.axis = vf
+            continue        
+        t += dt
+
 
 #我是想說分段寫，要寫進上面迴圈感覺很麻煩🧠
 # %%
