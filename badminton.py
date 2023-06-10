@@ -19,12 +19,12 @@ shuttlecock = compound([head,feather],
 #racket
 racket_head = cylinder(pos=vector(100,0,0), size=vector(1,29,23))
 bat = cylinder(pos=vector(100.5,0,0), radius=0.5, axis=vector(0,-53.5,0))
-racket = compound([racket_head,bat], axis=vector(1,-1,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0), mr = 8.5e-2)
+racket = compound([racket_head,bat], axis=vector(1,0.2,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0), mr = 8.5e-2)
 
 #parameter
 vel = vector(v0*cos(theta), v0*sin(theta), 0)
 w = 10*pi*norm(shuttlecock.axis) #自旋
-ww = 50*norm(shuttlecock.axis) #螺線
+#ww = 50*norm(shuttlecock.axis) 螺線
 t = 0
 dt = 0.01
 T = 100
@@ -41,11 +41,11 @@ def momentum(v,ws):
     vf = (shuttlecock.m*v+delta_ms)/shuttlecock.m
     return vf, delta_ms
 
-def torque(v,ws):
+def angular_acceleration(v,ws):
     delta_ms = momentum(v,ws)[1]
-    tou = cross(rr,delta_ms/tt)
-    alpha = tou/((2/5)*shuttlecock.m*1.4**2)
-    return alpha*0.000001
+    tou = cross(1.4e-2*hat(shuttlecock.axis),delta_ms/tt)
+    alpha = tou/((2/5)*shuttlecock.m*1.4e-2**2)
+    return alpha*0.00001
 
 
 
@@ -109,7 +109,7 @@ rr = -(shuttlecock.origin-racket.origin)-hit_length
 
 s_rang = dot(shuttlecock.axis,racket.racket_ha) 
 vf = momentum(vel,ws)[0]
-alpha = torque(vel,ws)
+alpha = angular_acceleration(vel,ws)
 omega = vector(0,0,0)
 print(alpha)
 #用球拍和球的內積判斷夾角
