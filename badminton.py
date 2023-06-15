@@ -1,6 +1,7 @@
 #%%
 #以下參數可以自行設定
 
+#1. 基本參數與物件設定
 from vpython import *
 
 canvas(title="badminton's movement",width=600, height=600, autoscale=True)
@@ -21,7 +22,7 @@ shuttlecock = compound([head,feather],
 #racket (羽球拍)
 racket_head = cylinder(pos=vector(100,0,0), size=vector(1,29,23))
 bat = cylinder(pos=vector(100.5,0,0), radius=0.5, axis=vector(0,-53.5,0))
-racket = compound([racket_head,bat], axis=vector(1,0.2,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0), mr = 8.5e-2)
+racket = compound([racket_head,bat], axis=vector(1,-1,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0), mr = 8.5e-2)
 
 #parameter
 vel = vector(v0*cos(theta), v0*sin(theta), 0)
@@ -35,6 +36,8 @@ b = 6*pi*eta*4.33 #阻力係數
 
 #racket's parameter
 ws = 0.1*vector(0,0,1) #羽球拍旋轉角速度
+#%%
+#2. 所使用到的計算
 
 def momentum(v,ws): #拍子的動量變化
     delta_ms = -cross(hit_length,ws)*racket.mr
@@ -49,9 +52,12 @@ def angular_acceleration(v,ws): #角加速度
 
 
 
-Rate = 50
+Rate = 20
 
 #%%
+#3. 物件運動
+#碰撞前
+
 while t<T :
     rate(Rate)
 
@@ -85,21 +91,23 @@ while t<T :
         break
     
     t += dt
-
+#%%
+#碰撞時
 
 t_interval = 0
 #接觸時間
 tt = 0.001
 
 while t_interval<tt:
-    rate(Rate*10)
+    rate(Rate*1)
 
     racket.rotate(axis=vector(0,0,1), angle=mag(ws)*dt)
     shuttlecock.rotate(origin=racket.origin, axis=vector(0,0,1), angle=mag(ws*dt))
 
     t += dt
     t_interval += dt
-
+#%%
+#碰撞後
 
 #the length of where the shuttlecock hit to the origin of racket 
 length = mag(shuttlecock.origin-racket.origin)
