@@ -35,8 +35,7 @@ b = 6*pi*eta*4.33 #阻力係數
 #racket's parameter
 ws = 0.1*vector(0,0,1) #羽球拍旋轉角速度
 
-def momentum(v,ws):
-    #拍子的動量變化
+def momentum(v,ws): #拍子的動量變化
     delta_ms = -cross(hit_length,ws)*racket.mr
     vf = (shuttlecock.m*v+delta_ms)/shuttlecock.m
     return vf, delta_ms
