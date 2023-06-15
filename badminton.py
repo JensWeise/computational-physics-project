@@ -6,34 +6,34 @@ canvas(title="badminton's movement",width=600, height=600, autoscale=True)
 #initial parameter
 theta = pi/4 #發射仰角
 v0 = 70 #初速
-g = vector(0,-9.8,0)
+g = vector(0,-9.8,0) #重力加速度
 
 
-#shuttlecock
+#shuttlecock (羽球)
 head = sphere(pos=vector(0,0,0), radius=1.4)
 feather = cone(pos=vector(-7,0,0), radius=3.4, axis=vector(7,0,0))
 
 shuttlecock = compound([head,feather], 
                        axis=vector(cos(theta), sin(theta),0), texture=textures.earth, make_trail=True, origin=vector(0,0,0), m = 5.50e-3)
 
-#racket
+#racket (羽球拍)
 racket_head = cylinder(pos=vector(100,0,0), size=vector(1,29,23))
 bat = cylinder(pos=vector(100.5,0,0), radius=0.5, axis=vector(0,-53.5,0))
 racket = compound([racket_head,bat], axis=vector(1,0.2,0), pos=vec(100,0,0), origin=vec(100,-53.5,0), racket_ha = vector(0,0,0), mr = 8.5e-2)
 
 #parameter
 vel = vector(v0*cos(theta), v0*sin(theta), 0)
-w = 10*pi*norm(shuttlecock.axis) #自旋
+w = 10*pi*norm(shuttlecock.axis) #自旋角速度
 #ww = 50*norm(shuttlecock.axis) 螺線
 t = 0
 dt = 0.01
 T = 100
 eta = 1.81e-5 #流體黏滯係數
-b = 6*pi*eta*4.33
-r = 1
+b = 6*pi*eta*4.33 #阻力係數
+#r = 1
 
 #racket's parameter
-ws = 0.1*vector(0,0,1)
+ws = 0.1*vector(0,0,1) #羽球拍旋轉角速度
 
 def momentum(v,ws):
     #拍子的動量變化
@@ -41,7 +41,7 @@ def momentum(v,ws):
     vf = (shuttlecock.m*v+delta_ms)/shuttlecock.m
     return vf, delta_ms
 
-def angular_acceleration(v,ws):
+def angular_acceleration(v,ws): #角加速度
     delta_ms = momentum(v,ws)[1]
     tou = cross(1.4e-2*hat(shuttlecock.axis),delta_ms/tt)
     alpha = tou/((2/5)*shuttlecock.m*1.4e-2**2)
@@ -70,7 +70,7 @@ while t<T :
   
     
 
-    #distance to the plane of racket
+    #distance to the plane of racket 球拍與羽球距離
     nvector = hat(-racket.axis)
     plane = lambda x, y, z: (nvector.x*x+nvector.y*y+nvector.z*z-(dot(nvector,racket.pos)))/(nvector.x**2+nvector.y**2+nvector.z**2)**0.5
     distance = plane(x=shuttlecock.origin.x,y=shuttlecock.origin.y,z=shuttlecock.origin.z)
@@ -101,7 +101,7 @@ while t_interval<tt:
     t_interval += dt
 
 
-#the length of where the shuttlecock hit to the origin of racket
+#the length of where the shuttlecock hit to the origin of racket 
 length = mag(shuttlecock.origin-racket.origin)
 hit_length = (length**2-1.4**2)**0.5*racket.racket_ha
 rr = -(shuttlecock.origin-racket.origin)-hit_length
@@ -146,6 +146,4 @@ elif s_rang<0:
             continue        
         t += dt
 
-
-#我是想說分段寫，要寫進上面迴圈感覺很麻煩🧠
 # %%
