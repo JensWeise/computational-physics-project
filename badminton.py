@@ -1,4 +1,6 @@
 #%%
+#以下參數可以自行設定
+
 from vpython import *
 
 canvas(title="badminton's movement",width=600, height=600, autoscale=True)
@@ -30,7 +32,6 @@ dt = 0.01
 T = 100
 eta = 1.81e-5 #流體黏滯係數
 b = 6*pi*eta*4.33 #阻力係數
-#r = 1
 
 #racket's parameter
 ws = 0.1*vector(0,0,1) #羽球拍旋轉角速度
